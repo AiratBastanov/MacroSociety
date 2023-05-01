@@ -71,7 +71,7 @@ namespace WebAppMacroSociety.Controllers
             User User = _context.Users.FirstOrDefault(u => u.Name == user.Name);
             int IdUser = User.Id;            
             PostListgame(user.Name, IdUser);
-            return ResultPost;
+            return IdUser;
         }
         
         // method create list level user

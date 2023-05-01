@@ -1,0 +1,9 @@
+{
+  "dependencies": {
+    "mssql1": {
+      "type": "mssql.onprem",
+      "connectionId": "ConnectionStrings:SQL8002.site4now.net",
+      "secretStore": null
+    }
+  }
+}
