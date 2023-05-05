@@ -21,25 +21,22 @@ namespace WebApiSociety.Controllers
         }
 
         [HttpGet]
-        public IEnumerable<CommentForPost> GetComment(int id)
+        public async Task<IEnumerable<CommentForPost>> GetComment(int id)
         {
-            IEnumerable<CommentForPost> comment;
-            comment = _context.CommentForPosts.Where(com => com.IdFriendPost == id);
+            IEnumerable<CommentForPost> comment = await _context.CommentForPosts.Where(com => com.IdFriendPost == id).ToListAsync();
             return comment;
         }
+
         [HttpPost]
-        public int CreateNewLike(CommentForPost comment)
+        public async Task<int> CreateNewLike(CommentForPost comment)
         {
-            int result = 0;
             _context.CommentForPosts.Add(comment);
-            result = _context.SaveChanges();
-            if (result == 1)
-            {
-                CommentForPost comment2 = _context.CommentForPosts.Where(com => com.IdFriendPost == comment.IdFriendPost && com.NameUserComment==comment.NameUserComment).FirstOrDefault();
-                result = comment2.Id;
-                return result;
-            }
-            return result;
+            await _context.SaveChangesAsync();
+
+            var savedComment = await _context.CommentForPosts
+                .FirstOrDefaultAsync(com => com.IdFriendPost == comment.IdFriendPost && com.NameUserComment == comment.NameUserComment);
+
+            return savedComment?.Id ?? 0;
         }
     }
 }

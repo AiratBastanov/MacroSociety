@@ -21,40 +21,39 @@ namespace MacroSociety.Controllers
         }
 
         [HttpGet]
-        public int GetInfoListen(int id)
+        public async Task<int> GetInfoListen(int id)
         {
-            int count = 0;
-            count = _context.UserSongs.Where(user => user.UserId == id).Count();
+            int count = await _context.UserSongs.Where(user => user.UserId == id).CountAsync();
             return count;
         }
 
         [HttpGet("ids")]
-        public int GetInfoAboutMusic(int iduser,int idsong)
+        public async Task<int> GetInfoAboutMusic(int iduser, int idsong)
         {
             int count = 0;
-            count = _context.UserSongs.Where(us => us.UserId == iduser && us.SongId== idsong).Count();
+            count = await _context.UserSongs.CountAsync(us => us.UserId == iduser && us.SongId == idsong);
             if (count == 0)
                 return count;
             return count;
         }
 
         [HttpGet("list")]
-        public IEnumerable<UserSong> GetListListen(int id)
+        public async Task<IEnumerable<UserSong>> GetListListen(int id)
         {
             IEnumerable<UserSong> SongList;
-            SongList = _context.UserSongs.Where(user => user.UserId == id);
+            SongList = await _context.UserSongs.Where(user => user.UserId == id).ToListAsync();
             return SongList;
         }
 
         [HttpPost]
-        public int CreateNewListen(UserSong usersong)
+        public async Task<int> CreateNewListen(UserSong usersong)
         {
             int ResultPost = 0;
-            Song songcheck = _context.Songs.FirstOrDefault(song => song.Id == usersong.SongId);
+            Song songcheck = await _context.Songs.FirstOrDefaultAsync(song => song.Id == usersong.SongId);
             if (songcheck == null)
-                return ResultPost;        
+                return ResultPost;
             _context.UserSongs.Add(usersong);
-            ResultPost = _context.SaveChanges();                      
+            ResultPost = await _context.SaveChangesAsync();
             return ResultPost;
         }
     }

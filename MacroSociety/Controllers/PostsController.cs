@@ -19,67 +19,59 @@ namespace WebApiSociety.Controllers
         {
             _context = context;
         }
+        
         [HttpGet]
-        public IEnumerable<Post> GetPostFriend(string name)
+        public async Task<IEnumerable<Post>> GetPostFriend(string name)
         {
             IEnumerable<Post> myAL;
-            myAL = _context.Posts.Where(post => post.NameUser == name);
+            myAL = await _context.Posts.Where(post => post.NameUser == name).ToListAsync();
             return myAL;
         }
-      /*  [HttpGet]
-        public IEnumerable<Post> GetPostFriend(string name, int skip, int take)
-        {
-            IEnumerable<Post> myAL;
-            myAL = _context.Posts.Where(post => post.NameUser == name).Skip(skip).Take(take);
-            return myAL;
-        }*/
+
+        /*  [HttpGet]
+          public IEnumerable<Post> GetPostFriend(string name, int skip, int take)
+          {
+              IEnumerable<Post> myAL;
+              myAL = _context.Posts.Where(post => post.NameUser == name).Skip(skip).Take(take);
+              return myAL;
+          }*/
         [HttpPost]
-        public int CreateNewUser(Post post)
+        public async Task<int> CreateNewUser(Post post)
         {
-            int result = 0;
             _context.Posts.Add(post);
-            result = _context.SaveChanges();         
+            int result = await _context.SaveChangesAsync();
             return result;
         }
+
         [HttpGet("myposts")]
-        public IEnumerable<Post> GetMyPost(string name)
+        public async Task<IEnumerable<Post>> GetMyPost(string name)
         {
             IEnumerable<Post> myAL;
-            myAL = _context.Posts.Where(post => post.NameUser == name);
+            myAL = await _context.Posts.Where(post => post.NameUser == name).ToListAsync();
             return myAL;
         }
+
         [HttpDelete("deletepost")]
-        public int Delete(int id)
+        public async Task<bool> Delete(int id)
         {
-            int result = 0;
-            Post post = _context.Posts.FirstOrDefault(x => x.Id == id);            
-            if (post != null)
+            Post post = await _context.Posts.FirstOrDefaultAsync(x => x.Id == id);
+            if (post == null)
             {
-                _context.Posts.Remove(post);
-                result = _context.SaveChanges();
+                return false;
             }
-            List<Like> like;
-            like = _context.Likes.Where(like=>like.IdFriendPost == id).ToList();
-            if (like != null)
-            {
-                for (int i = 0; i < like.Count(); ++i)
-                {
-                    _context.Likes.Remove(like.ElementAt(i));
-                    result = _context.SaveChanges();
-                }
-            }            
-            List<CommentForPost> comment;
-            comment = _context.CommentForPosts.Where(like => like.IdFriendPost == id).ToList();
-            if (comment != null)
-            {
-                for (int i = 0; i < comment.Count(); i++)
-                {
-                    _context.CommentForPosts.Remove(comment.ElementAt(i));
-                    result = _context.SaveChanges();
-                    //result = comment.Count();
-                }
-            }                            
-            return result;
+
+            _context.Posts.Remove(post);
+            await _context.SaveChangesAsync();
+
+            List<Like> likes = await _context.Likes.Where(like => like.IdFriendPost == id).ToListAsync();
+            _context.Likes.RemoveRange(likes);
+            await _context.SaveChangesAsync();
+
+            List<CommentForPost> comments = await _context.CommentForPosts.Where(comment => comment.IdFriendPost == id).ToListAsync();
+            _context.CommentForPosts.RemoveRange(comments);
+            await _context.SaveChangesAsync();
+
+            return true;
         }
     }
 }

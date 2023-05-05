@@ -19,58 +19,59 @@ namespace WebApiSociety.Controllers
         public LikesController(MacroSocietyContext context)
         {
             _context = context;
-        }      
+        }
         [HttpGet]
-        public IEnumerable<Like> GetLike(string myname)
+        public async Task<IEnumerable<Like>> GetLike(string myname)
         {
             IEnumerable<Like> likes;
-            likes = _context.Likes.Where(like => like.NameUserLike == myname && like.WhosePost == myname);               
+            likes = await _context.Likes.Where(like => like.NameUserLike == myname && like.WhosePost == myname).ToListAsync();
             return likes;
         }
+
         [HttpGet("forfriend")]
-        public IEnumerable<Like> GetLikeForFrinedPost(string myname,string friendname)
+        public async Task<IEnumerable<Like>> GetLikeForFrinedPost(string myname, string friendname)
         {
             IEnumerable<Like> likes;
-            likes = _context.Likes.Where(like => like.NameUserLike == myname && like.WhosePost == friendname);
+            likes = await _context.Likes.Where(like => like.NameUserLike == myname && like.WhosePost == friendname).ToListAsync();
             return likes;
         }
+
         [HttpPost]
-        public int CreateNewLike(Like like1)
+        public async Task<int> CreateNewLike(Like newLike)
         {
-            int result = 0;
-            _context.Likes.Add(like1);
-            result = _context.SaveChanges();
-            if (result == 1)
+            _context.Likes.Add(newLike);
+            await _context.SaveChangesAsync();
+
+            if (newLike.Id > 0)
             {
-                Like like2 = _context.Likes.Where(like => like.IdFriendPost == like1.IdFriendPost).FirstOrDefault();
-                result = like2.Id;
-                return result;
+                return newLike.Id;
             }
-            return result;
+            return 0;
         }
-       /* [HttpPut]
-        public int Put(Like like)
+
+        /* [HttpPut]
+         public int Put(Like like)
+         {
+             int result = 0;
+             if (like == null)
+             {
+                 return result;
+             }
+             _context.Update(like);
+             result = _context.SaveChanges();
+             return result;
+         }*/
+        [HttpDelete]
+        public async Task<int> DeleteLike(int id_like)
         {
             int result = 0;
+            Like like = await _context.Likes.FirstOrDefaultAsync(l => l.Id == id_like);
             if (like == null)
             {
-                return result;
-            }
-            _context.Update(like);
-            result = _context.SaveChanges();
-            return result;
-        }*/
-        [HttpDelete]
-        public int DeleteLike(int id_like)
-        {
-            int result = 0;
-            Like like = _context.Likes.Where(like=>like.Id==id_like).FirstOrDefault();
-            if (like == null)
-            {               
                 return result;
             }
             _context.Likes.Remove(like);
-            result = _context.SaveChanges();
+            result = await _context.SaveChangesAsync();
             return result;
         }
     }

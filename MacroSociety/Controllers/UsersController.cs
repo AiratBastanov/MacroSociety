@@ -29,20 +29,22 @@ namespace WebAppMacroSociety.Controllers
         }
 
         [HttpGet]
-        public ActionResult<User> GetUserByLogin(string name)
+        public async Task<ActionResult<User>> GetUserByLogin(string name)
         {
-            User user = _context.Users.FirstOrDefault(user => user.Name == name);
+            User user = await _context.Users.FirstOrDefaultAsync(user => user.Name == name);
             if (user == null)
                 return NotFound();
             return Ok(user);
         }
+
         [HttpGet("allusers")]
-        public IEnumerable<User> GetListUsers(string myname)
+        public async Task<IEnumerable<User>> GetListUsers(string myname)
         {
             IEnumerable<User> UsersList;
-            UsersList = _context.Users.Where(user => user.Name != myname);
+            UsersList = await _context.Users.Where(user => user.Name != myname).ToListAsync();
             return UsersList;
         }
+
         [HttpGet("checkemail")]
         public async Task<int> GetEmailandCheck(string email)
         {
@@ -57,36 +59,30 @@ namespace WebAppMacroSociety.Controllers
         public async Task<int> GetCommentandSend(string infoUser, string comment)
         {
             emailService = new EmailService();
-            createVerificationCode = new CreateVerificationCode();           
+            createVerificationCode = new CreateVerificationCode();
             string bodyMessage = @"Текст пользователя: " + comment;
             await emailService.SendEmailAsync("ajratbastanov@gmail.com", infoUser, bodyMessage);
             return 1;
         }
         [HttpPost]
-        public int CreateNewUser(User user)
-        {
-            int ResultPost = 0;
-            _context.Users.Add(user);
-            ResultPost = _context.SaveChanges();
-            User User = _context.Users.FirstOrDefault(u => u.Name == user.Name);
-            int IdUser = User.Id;            
-            PostListgame(user.Name, IdUser);
-            return IdUser;
-        }
-        
-        // method create list level user
-        public void PostListgame(string nameuser, int IdUser)
+        public async Task<int> CreateNewUser(User user)
         {
             Game game = new Game();
-            game.NameUser = nameuser;
+            int ResultPost = 0;
+            _context.Users.Add(user);
+            ResultPost = await _context.SaveChangesAsync();
+            User User = await _context.Users.FirstOrDefaultAsync(u => u.Name == user.Name);
+            int IdUser = User.Id;
+            game.NameUser = user.Name;
             game.IdUser = IdUser;
             _context.Games.Add(game);
-            _context.SaveChanges();            
+            await _context.SaveChangesAsync();
+            return ResultPost;
         }
 
         // PUT for change password       
         [HttpPut]
-        public int Put(User user)
+        public async Task<int> Put(User user)
         {
             int ResultPut = 0;
             if (user == null)
@@ -94,18 +90,18 @@ namespace WebAppMacroSociety.Controllers
                 return ResultPut;
             }
             _context.Update(user);
-            ResultPut = _context.SaveChanges();
+            ResultPut = await _context.SaveChangesAsync();
             return ResultPut;
         }
+
         [HttpDelete("{id}")]
-        public int Delete(int id)
+        public async Task<int> DeleteAsync(int id)
         {
-            User User = _context.Users.FirstOrDefault(x => x.Id == id);
-            if (User != null)
+            User user = await _context.Users.FirstOrDefaultAsync(x => x.Id == id);
+            if (user != null)
             {
-                _context.Users.Remove(User);
-                _context.SaveChanges();
-                return 1;
+                _context.Users.Remove(user);
+                return await _context.SaveChangesAsync();
             }
             return 0;
         }

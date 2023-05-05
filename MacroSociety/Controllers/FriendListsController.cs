@@ -19,29 +19,31 @@ namespace WebAppMacroSociety.Controllers
         {
             _context = context;
         }
+
         [HttpGet]
-        public ActionResult<FriendList> GetFriend(string myname, string friendname)
-        {          
-            FriendList FriendList = _context.FriendLists.Where(friendlist => friendlist.Username == myname && friendlist.Friendname == friendname).FirstOrDefault();
+        public async Task<ActionResult<FriendList>> GetFriend(string myname, string friendname)
+        {
+            FriendList FriendList = await _context.FriendLists.Where(friendlist => friendlist.Username == myname && friendlist.Friendname == friendname).FirstOrDefaultAsync();
             if (FriendList == null)
                 return NotFound();
             return Ok(FriendList);
         }
+
         [HttpGet("allfriends")]
-        public IEnumerable<FriendList> GetFriendAll(string myname)
+        public async Task<IEnumerable<FriendList>> GetFriendAll(string myname)
         {
-            IEnumerable<FriendList> MyFriends;
-            MyFriends = _context.FriendLists.Where(friendlist => friendlist.Username == myname);
+            IEnumerable<FriendList> MyFriends = await _context.FriendLists.Where(friendlist => friendlist.Username == myname).ToListAsync();
             return MyFriends;
         }
+
         [HttpPost]
-        public int CreateNewFriend(FriendList friendlist)
+        public async Task<int> CreateNewFriend(FriendList friendlist)
         {
             int ResultPost = 0;
             _context.FriendLists.Add(friendlist);
-            ResultPost = _context.SaveChanges();
+            ResultPost = await _context.SaveChangesAsync();
             _context.FriendLists.Add(new FriendList() { Friendname = friendlist.Username, Username = friendlist.Friendname, IdUsername = friendlist.IdFriendname, IdFriendname = friendlist.IdUsername });
-            ResultPost += _context.SaveChanges();
+            ResultPost += await _context.SaveChangesAsync();
             return ResultPost;
         }
     }

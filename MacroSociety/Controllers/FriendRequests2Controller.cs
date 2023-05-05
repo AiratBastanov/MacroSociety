@@ -21,32 +21,34 @@ namespace WebAppMacroSociety.Controllers
         }
 
         [HttpGet]
-        public ActionResult<FriendRequest> GetFutureFriend(string futurefriend)
+        public async Task<ActionResult<FriendRequest>> GetFutureFriend(string futurefriend)
         {
-            FriendRequest FriendRequest = _context.FriendRequests.Where(friendRequest => friendRequest.UserName == futurefriend).FirstOrDefault();
+            FriendRequest FriendRequest = await _context.FriendRequests.FirstOrDefaultAsync(friendRequest => friendRequest.UserName == futurefriend);
             if (FriendRequest == null)
                 return NotFound();
             return Ok(FriendRequest);
         }
+
         /*[HttpDelete("{id}")]*/
         [HttpDelete]
-        public int Delete(int id)
+        public async Task<int> Delete(int id)
         {
             int ResultDelete = 0;
-            FriendRequest FriendRequest = _context.FriendRequests.FirstOrDefault(x => x.Id == id);
+            FriendRequest FriendRequest = await _context.FriendRequests.FirstOrDefaultAsync(x => x.Id == id);
             if (FriendRequest == null)
             {
                 return ResultDelete;
             }
             _context.FriendRequests.Remove(FriendRequest);
-            ResultDelete = _context.SaveChanges();
+            ResultDelete = await _context.SaveChangesAsync();
             return ResultDelete;
         }
+
         [HttpGet("requestlist")]
-        public IEnumerable<FriendRequest> GetFriendReauestList(string myname)
+        public async Task<IEnumerable<FriendRequest>> GetFriendRequestListAsync(string myname)
         {
-            IEnumerable<FriendRequest> FriendRequest = _context.FriendRequests.Where(friendRequest => friendRequest.FutureFriend == myname);
-            return FriendRequest;
+            IEnumerable<FriendRequest> friendRequests = await _context.FriendRequests.Where(friendRequest => friendRequest.FutureFriend == myname).ToListAsync();
+            return friendRequests;
         }
     }
 }

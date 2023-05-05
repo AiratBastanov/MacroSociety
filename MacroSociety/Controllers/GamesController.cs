@@ -19,24 +19,26 @@ namespace WebAPI.Controllers
         {
             _context = context;
         }
+
         [HttpGet]
-        public ActionResult<Game> GetInfoGame(string name)
+        public async Task<ActionResult<Game>> GetInfoGame(string name)
         {
-            Game ListLevelUser = _context.Games.FirstOrDefault(listLevelUser => listLevelUser.NameUser == name);
+            Game ListLevelUser = await _context.Games.FirstOrDefaultAsync(listLevelUser => listLevelUser.NameUser == name);
             if (ListLevelUser == null)
                 return NotFound();
             return Ok(ListLevelUser);
         }
+
         [HttpPut]
-        public int Put(Game ListLevelUser)
+        public async Task<int> UpdateGameAsync(Game ListLevelUser)
         {
-            int result = 0;
             if (ListLevelUser == null)
             {
-                return result;
+                return 0;
             }
+
             _context.Update(ListLevelUser);
-            result = _context.SaveChanges();
+            int result = await _context.SaveChangesAsync();
             return result;
         }
     }
