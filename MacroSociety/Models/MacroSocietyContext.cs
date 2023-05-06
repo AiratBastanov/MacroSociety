@@ -26,6 +26,7 @@ namespace MacroSociety.Models
         public virtual DbSet<Song> Songs { get; set; }
         public virtual DbSet<User> Users { get; set; }
         public virtual DbSet<UserSong> UserSongs { get; set; }
+        public virtual DbSet<CheckVersion> CheckVersions { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -56,6 +57,14 @@ namespace MacroSociety.Models
                     .WithMany(p => p.CommentForPosts)
                     .HasForeignKey(d => d.IdFriendPost)
                     .HasConstraintName("FK_CommentForPost_Post");
+            });
+            modelBuilder.Entity<CheckVersion>(entity =>
+            {
+                entity.ToTable("CheckVersion");
+
+                entity.Property(e => e.LastVersion)
+                    .IsRequired()
+                    .HasMaxLength(50);            
             });
 
             modelBuilder.Entity<FriendList>(entity =>
