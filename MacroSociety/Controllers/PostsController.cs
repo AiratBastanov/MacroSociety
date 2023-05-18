@@ -19,35 +19,52 @@ namespace WebApiSociety.Controllers
         {
             _context = context;
         }
-        
+        /*
+                [HttpGet]
+                public async Task<IEnumerable<Post>> GetPostFriend(string name)
+                {
+                    IEnumerable<Post> myAL;
+                    myAL = await _context.Posts.Where(post => post.NameUser == name).ToListAsync();
+                    return myAL;
+                }*/
         [HttpGet]
-        public async Task<IEnumerable<Post>> GetPostFriend(string name)
+        public async Task<IEnumerable<Post>> GetPostFriend(string name, int chunkIndex, int chunkSize)
         {
-            IEnumerable<Post> myAL;
-            myAL = await _context.Posts.Where(post => post.NameUser == name).ToListAsync();
+            var myAL = await _context.Posts
+                .Where(post => post.NameUser == name)
+                .OrderBy(post => post.Id) // Сортировка по возрастанию по полю Id
+                .Skip((chunkSize - 1) * chunkIndex)
+                .Take(chunkSize)
+                .ToListAsync();
             return myAL;
         }
 
-        /*  [HttpGet]
-          public IEnumerable<Post> GetPostFriend(string name, int skip, int take)
-          {
-              IEnumerable<Post> myAL;
-              myAL = _context.Posts.Where(post => post.NameUser == name).Skip(skip).Take(take);
-              return myAL;
-          }*/
         [HttpPost]
-        public async Task<int> CreateNewUser(Post post)
+        public async Task<int> CreateNewPost(Post post)
         {
             _context.Posts.Add(post);
             int result = await _context.SaveChangesAsync();
             return result;
         }
 
+/*
         [HttpGet("myposts")]
-        public async Task<IEnumerable<Post>> GetMyPost(string name)
+        public async Task<IEnumerable<Post>> GetMyPost(string name, int chunkIndex, int chunkSize)
         {
             IEnumerable<Post> myAL;
             myAL = await _context.Posts.Where(post => post.NameUser == name).ToListAsync();
+            return myAL;
+        }*/
+
+        [HttpGet("myposts")]
+        public async Task<IEnumerable<Post>> GetMyPost(string name, int chunkIndex, int chunkSize)
+        {
+            var myAL = await _context.Posts
+                .Where(post => post.NameUser == name)
+                .OrderBy(post => post.Id) // Сортировка по возрастанию по полю Id
+                .Skip((chunkSize - 1) * chunkIndex)
+                .Take(chunkSize)
+                .ToListAsync();
             return myAL;
         }
 
@@ -63,13 +80,13 @@ namespace WebApiSociety.Controllers
             _context.Posts.Remove(post);
             await _context.SaveChangesAsync();
 
-            List<Like> likes = await _context.Likes.Where(like => like.IdFriendPost == id).ToListAsync();
+           /* List<Like> likes = await _context.Likes.Where(like => like.IdFriendPost == id).ToListAsync();
             _context.Likes.RemoveRange(likes);
             await _context.SaveChangesAsync();
 
             List<CommentForPost> comments = await _context.CommentForPosts.Where(comment => comment.IdFriendPost == id).ToListAsync();
             _context.CommentForPosts.RemoveRange(comments);
-            await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync();*/
 
             return true;
         }

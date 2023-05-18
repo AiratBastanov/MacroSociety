@@ -38,12 +38,23 @@ namespace WebAppMacroSociety.Controllers
         }
 
         [HttpGet("allusers")]
+        public async Task<IEnumerable<User>> GetUsers(string myname, int chunkIndex, int chunkSize)
+        {
+            var myAL = await _context.Users
+                .Where(user => user.Name != myname)
+                .Skip((chunkSize - 1) * chunkIndex)
+                .Take(chunkSize)
+                .ToListAsync();
+            return myAL;
+        }
+
+       /* [HttpGet("allusers")]
         public async Task<IEnumerable<User>> GetListUsers(string myname)
         {
             IEnumerable<User> UsersList;
             UsersList = await _context.Users.Where(user => user.Name != myname).ToListAsync();
             return UsersList;
-        }
+        }*/
 
         [HttpGet("checkemail")]
         public async Task<int> GetEmailandCheck(string email)

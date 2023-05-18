@@ -30,11 +30,23 @@ namespace WebAppMacroSociety.Controllers
         }
 
         [HttpGet("allfriends")]
-        public async Task<IEnumerable<FriendList>> GetFriendAll(string myname)
+        public async Task<IEnumerable<FriendList>> GetFriendAll(string myname, int chunkIndex, int chunkSize)
+        {
+            var MyFriends = await _context.FriendLists
+               .Where(friendlist => friendlist.Username == myname)
+               .OrderBy(friendlist => friendlist.Id) // Сортировка по возрастанию по полю Id
+               .Skip((chunkSize - 1) * chunkIndex)
+               .Take(chunkSize)
+               .ToListAsync();
+            return MyFriends;
+        }
+
+       /* [HttpGet("allfriends")]
+        public async Task<IEnumerable<FriendList>> GetFriendAll(string myname, int chunkIndex, int chunkSize)
         {
             IEnumerable<FriendList> MyFriends = await _context.FriendLists.Where(friendlist => friendlist.Username == myname).ToListAsync();
             return MyFriends;
-        }
+        }*/
 
         [HttpPost]
         public async Task<int> CreateNewFriend(FriendList friendlist)
