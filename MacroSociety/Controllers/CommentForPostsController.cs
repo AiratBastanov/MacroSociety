@@ -20,10 +20,21 @@ namespace WebApiSociety.Controllers
             _context = context;
         }
 
-        [HttpGet]
+        /*[HttpGet]
         public async Task<IEnumerable<CommentForPost>> GetComment(int id)
         {
             IEnumerable<CommentForPost> comment = await _context.CommentForPosts.Where(com => com.IdFriendPost == id).ToListAsync();
+            return comment;
+        }*/
+        [HttpGet]
+        public async Task<IEnumerable<CommentForPost>> GetComment(int id, int chunkIndex, int chunkSize)
+        {          
+            var comment = await _context.CommentForPosts
+             .Where(com => com.IdFriendPost == id)
+             .OrderBy(com => com.Id) // Сортировка по возрастанию по полю Id
+             .Skip((chunkSize - 1) * chunkIndex)
+             .Take(chunkSize)
+             .ToListAsync();
             return comment;
         }
 
