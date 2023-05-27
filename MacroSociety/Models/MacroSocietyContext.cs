@@ -1,6 +1,8 @@
 ﻿using System;
+using System.IO;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.Extensions.Configuration;
 
 #nullable disable
 
@@ -32,10 +34,17 @@ namespace MacroSociety.Models
         {
             if (!optionsBuilder.IsConfigured)
             {
-#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
-                optionsBuilder.UseSqlServer("Data Source = SQL8002.site4now.net; Initial Catalog = db_a98760_macrosociety; User Id = db_a98760_macrosociety_admin; Password = 2060AmdPC!");
+                IConfigurationRoot configuration = new ConfigurationBuilder()
+                    .SetBasePath(Directory.GetCurrentDirectory())
+                    .AddJsonFile("appsettings.json")
+                    .Build();
+
+                string connectionString = configuration.GetConnectionString("database");
+
+                optionsBuilder.UseSqlServer(connectionString);
             }
         }
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

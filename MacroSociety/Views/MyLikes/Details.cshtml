@@ -1,0 +1,36 @@
+﻿@model MacroSociety.Models.Like
+
+@{
+    ViewData["Title"] = "Details";
+}
+
+<h1>Details</h1>
+
+<div>
+    <h4>Like</h4>
+    <hr />
+    <dl class="row">
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.NameUserLike)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.NameUserLike)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.WhosePost)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.WhosePost)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.IdFriendPostNavigation)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.IdFriendPostNavigation.NameUser)
+        </dd>
+    </dl>
+</div>
+<div>
+    <a asp-action="Edit" asp-route-id="@Model.Id">Edit</a> |
+    <a asp-action="Index">Back to List</a>
+</div>

@@ -20,24 +20,13 @@ namespace WebApiSociety.Controllers
         {
             _context = context;
         }
-     /*    [HttpGet]
-         public async Task<IEnumerable<Like>> GetLike(string myname)
-         {
-             IEnumerable<Like> likes;
-             likes = await _context.Likes.Where(like => like.NameUserLike == myname && like.WhosePost == myname).ToListAsync();
-             return likes;
-         }*/
-
         [HttpGet]
         public async Task<IEnumerable<Like>> GetLike(string myname)
         {
             IEnumerable<Like> likes;
-            likes = await _context.Likes
-                .Where(like => like.NameUserLike == myname && myname.Contains(like.NameUserLike))
-                .ToListAsync();
-
+            likes = await _context.Likes.Where(like => like.NameUserLike == myname && like.WhosePost == myname).ToListAsync();
             return likes;
-        }     
+        }
 
         [HttpGet("forfriend")]
         public async Task<IEnumerable<Like>> GetLikeForFrinedPost(string myname, string friendname)

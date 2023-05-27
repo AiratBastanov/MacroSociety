@@ -19,25 +19,14 @@ namespace WebApiSociety.Controllers
         {
             _context = context;
         }
-        /*
-                [HttpGet]
-                public async Task<IEnumerable<Post>> GetPostFriend(string name)
-                {
-                    IEnumerable<Post> myAL;
-                    myAL = await _context.Posts.Where(post => post.NameUser == name).ToListAsync();
-                    return myAL;
-                }*/
+
         [HttpGet]
-        public async Task<IEnumerable<Post>> GetPostFriend(string name, int chunkIndex, int chunkSize)
+        public async Task<IEnumerable<Post>> GetPostFriend(string name)
         {
-            var myAL = await _context.Posts
-                .Where(post => post.NameUser == name)
-                .OrderBy(post => post.Id) // Сортировка по возрастанию по полю Id
-                .Skip((chunkSize - 1) * chunkIndex)
-                .Take(chunkSize)
-                .ToListAsync();
+            IEnumerable<Post> myAL;
+            myAL = await _context.Posts.Where(post => post.NameUser == name).ToListAsync();
             return myAL;
-        }
+        }    
 
         [HttpPost]
         public async Task<int> CreateNewPost(Post post)
@@ -47,24 +36,12 @@ namespace WebApiSociety.Controllers
             return result;
         }
 
-/*
+
         [HttpGet("myposts")]
-        public async Task<IEnumerable<Post>> GetMyPost(string name, int chunkIndex, int chunkSize)
+        public async Task<IEnumerable<Post>> GetMyPost(string name)
         {
             IEnumerable<Post> myAL;
             myAL = await _context.Posts.Where(post => post.NameUser == name).ToListAsync();
-            return myAL;
-        }*/
-
-        [HttpGet("myposts")]
-        public async Task<IEnumerable<Post>> GetMyPost(string name, int chunkIndex, int chunkSize)
-        {
-            var myAL = await _context.Posts
-                .Where(post => post.NameUser == name)
-                .OrderBy(post => post.Id) // Сортировка по возрастанию по полю Id
-                .Skip((chunkSize - 1) * chunkIndex)
-                .Take(chunkSize)
-                .ToListAsync();
             return myAL;
         }
 
