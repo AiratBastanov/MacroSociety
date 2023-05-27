@@ -48,14 +48,6 @@ namespace WebAppMacroSociety.Controllers
             return myAL;
         }
 
-       /* [HttpGet("allusers")]
-        public async Task<IEnumerable<User>> GetListUsers(string myname)
-        {
-            IEnumerable<User> UsersList;
-            UsersList = await _context.Users.Where(user => user.Name != myname).ToListAsync();
-            return UsersList;
-        }*/
-
         [HttpGet("checkemail")]
         public async Task<int> GetEmailandCheck(string email)
         {
@@ -90,8 +82,7 @@ namespace WebAppMacroSociety.Controllers
             await _context.SaveChangesAsync();
             return ResultPost;
         }
-
-        // PUT for change password       
+       
         [HttpPut]
         public async Task<int> Put(User user)
         {

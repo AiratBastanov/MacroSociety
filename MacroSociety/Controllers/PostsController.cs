@@ -56,15 +56,6 @@ namespace WebApiSociety.Controllers
 
             _context.Posts.Remove(post);
             await _context.SaveChangesAsync();
-
-           /* List<Like> likes = await _context.Likes.Where(like => like.IdFriendPost == id).ToListAsync();
-            _context.Likes.RemoveRange(likes);
-            await _context.SaveChangesAsync();
-
-            List<CommentForPost> comments = await _context.CommentForPosts.Where(comment => comment.IdFriendPost == id).ToListAsync();
-            _context.CommentForPosts.RemoveRange(comments);
-            await _context.SaveChangesAsync();*/
-
             return true;
         }
     }

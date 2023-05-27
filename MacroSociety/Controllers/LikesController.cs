@@ -48,19 +48,6 @@ namespace WebApiSociety.Controllers
             }
             return 0;
         }
-
-        /* [HttpPut]
-         public int Put(Like like)
-         {
-             int result = 0;
-             if (like == null)
-             {
-                 return result;
-             }
-             _context.Update(like);
-             result = _context.SaveChanges();
-             return result;
-         }*/
         [HttpDelete]
         public async Task<int> DeleteLike(int id_like)
         {

@@ -28,8 +28,6 @@ namespace WebAppMacroSociety.Controllers
                 return NotFound();
             return Ok(FriendRequest);
         }
-
-        /*[HttpDelete("{id}")]*/
         [HttpDelete]
         public async Task<int> Delete(int id)
         {

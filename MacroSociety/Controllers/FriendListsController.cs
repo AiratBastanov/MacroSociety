@@ -41,13 +41,6 @@ namespace WebAppMacroSociety.Controllers
             return MyFriends;
         }
 
-       /* [HttpGet("allfriends")]
-        public async Task<IEnumerable<FriendList>> GetFriendAll(string myname, int chunkIndex, int chunkSize)
-        {
-            IEnumerable<FriendList> MyFriends = await _context.FriendLists.Where(friendlist => friendlist.Username == myname).ToListAsync();
-            return MyFriends;
-        }*/
-
         [HttpPost]
         public async Task<int> CreateNewFriend(FriendList friendlist)
         {
