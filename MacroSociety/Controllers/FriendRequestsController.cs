@@ -31,17 +31,6 @@ namespace WebAppMacroSociety.Controllers
             return Ok(FriendRequest);
         }
 
-        [HttpGet("futurefriend")]
-        public async Task<ActionResult<FriendRequest>> GetFutureFriend(string futurefriend)
-        {
-            FriendRequest friendRequest = await _context.FriendRequests.FirstOrDefaultAsync(fr => fr.UserName == futurefriend);
-            if (friendRequest == null)
-            {
-                return NotFound();
-            }
-            return Ok(friendRequest);
-        }
-
         [HttpGet("requestlist")]
         public async Task<IEnumerable<FriendRequest>> GetFriendRequestListAsync(string myname)
         {
@@ -60,10 +49,10 @@ namespace WebAppMacroSociety.Controllers
         public async Task<int> Delete(int id)
         {
             int ResultDelete = 0;
-            FriendRequest FriendRequest = await _context.FriendRequests.FirstOrDefaultAsync(x => x.Id == id);
-            if (FriendRequest != null)
+            FriendRequest friendRequest = await _context.FriendRequests.FirstOrDefaultAsync(x => x.Id == id);
+            if (friendRequest != null)
             {
-                _context.FriendRequests.Remove(FriendRequest);
+                _context.FriendRequests.Remove(friendRequest);
                 ResultDelete = await _context.SaveChangesAsync();
             }
             return ResultDelete;

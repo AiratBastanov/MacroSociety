@@ -162,8 +162,6 @@ namespace MacroSociety.Models
             {
                 entity.ToTable("Post");
 
-                entity.Property(e => e.Id).ValueGeneratedNever();
-
                 entity.Property(e => e.NameUser)
                     .IsRequired()
                     .HasMaxLength(50);
@@ -171,7 +169,7 @@ namespace MacroSociety.Models
                 entity.HasOne(d => d.IdUserNavigation)
                     .WithMany(p => p.Posts)
                     .HasForeignKey(d => d.IdUser)
-                    .HasConstraintName("FK_Post_Users");
+                    .HasConstraintName("FK_Post_Users");               
             });
 
             modelBuilder.Entity<User>(entity =>
