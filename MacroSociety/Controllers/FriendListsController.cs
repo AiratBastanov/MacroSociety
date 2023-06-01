@@ -28,7 +28,7 @@ namespace WebAppMacroSociety.Controllers
                 return NotFound();
             return Ok(FriendList);
         }
-
+/*
         [HttpGet("allfriends")]
         public async Task<IEnumerable<FriendList>> GetFriendAll(string myname, int chunkIndex, int chunkSize)
         {
@@ -39,7 +39,22 @@ namespace WebAppMacroSociety.Controllers
                .Take(chunkSize)
                .ToListAsync();
             return MyFriends;
+        }*/
+
+        [HttpGet("allfriends")]
+        public async Task<IEnumerable<User>> GetFriendAll(string myname, int chunkIndex, int chunkSize)
+        {
+            var MyFriends = await _context.FriendLists
+                .Where(friendlist => friendlist.Username == myname)
+                .OrderBy(friendlist => friendlist.Id)
+                .Skip((chunkSize - 1) * chunkIndex)
+                .Take(chunkSize)
+                .Select(friendlist => friendlist.IdFriendnameNavigation) // Используйте свойство навигации User для получения данных друга
+                .ToListAsync();
+
+            return MyFriends;
         }
+
 
         [HttpPost]
         public async Task<int> CreateNewFriend(FriendList friendlist)
