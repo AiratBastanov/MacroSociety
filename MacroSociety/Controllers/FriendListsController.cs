@@ -28,18 +28,6 @@ namespace WebAppMacroSociety.Controllers
                 return NotFound();
             return Ok(FriendList);
         }
-/*
-        [HttpGet("allfriends")]
-        public async Task<IEnumerable<FriendList>> GetFriendAll(string myname, int chunkIndex, int chunkSize)
-        {
-            var MyFriends = await _context.FriendLists
-               .Where(friendlist => friendlist.Username == myname)
-               .OrderBy(friendlist => friendlist.Id) // Сортировка по возрастанию по полю Id
-               .Skip((chunkSize - 1) * chunkIndex)
-               .Take(chunkSize)
-               .ToListAsync();
-            return MyFriends;
-        }*/
 
         [HttpGet("allfriends")]
         public async Task<IEnumerable<User>> GetFriendAll(string myname, int chunkIndex, int chunkSize)
