@@ -38,16 +38,26 @@ namespace WebAppMacroSociety.Controllers
         }
 
         [HttpGet("allusers")]
-        public async Task<IEnumerable<User>> GetUsers(string myname, int chunkIndex, int chunkSize)
+        public async Task<IEnumerable<User>> GetUsers(string myname, string person, int chunkIndex, int chunkSize)
         {
-            var myAL = await _context.Users
+            IQueryable<User> query = _context.Users
                 .Where(user => user.Name != myname && !_context.FriendLists
                     .Any(friend => (friend.Username == myname && friend.Friendname == user.Name) ||
-                                   (friend.Friendname == myname && friend.Username == user.Name)))
-                .Skip((chunkSize - 1) * chunkIndex)
-                .Take(chunkSize)
-                .ToListAsync();
-            return myAL;
+                                   (friend.Friendname == myname && friend.Username == user.Name)));
+
+            if (string.IsNullOrEmpty(person))
+            {
+                query = query.Skip((chunkSize - 1) * chunkIndex).Take(chunkSize);
+            }
+            else
+            {
+                query = query.Where(user => user.Name.Contains(person))
+                             .Skip((chunkSize - 1) * chunkIndex)
+                             .Take(chunkSize);
+            }
+
+            var users = await query.ToListAsync();
+            return users;
         }
 
 

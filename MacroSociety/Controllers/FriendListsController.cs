@@ -48,8 +48,6 @@ namespace WebAppMacroSociety.Controllers
             return MyFriends;
         }
 
-
-
         [HttpPost]
         public async Task<int> CreateNewFriend(FriendList friendlist)
         {
