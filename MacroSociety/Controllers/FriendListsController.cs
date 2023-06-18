@@ -30,18 +30,24 @@ namespace WebAppMacroSociety.Controllers
         }
 
         [HttpGet("allfriends")]
-        public async Task<IEnumerable<User>> GetFriendAll(string myname, int chunkIndex, int chunkSize)
+        public async Task<IEnumerable<User>> GetFriendAll(string myname, string friendname, int chunkIndex, int chunkSize)
         {
-            var MyFriends = await _context.FriendLists
+            IQueryable<FriendList> friendListQuery = _context.FriendLists
                 .Where(friendlist => friendlist.Username == myname)
-                .OrderBy(friendlist => friendlist.Id)
+                .OrderBy(friendlist => friendlist.Id);
+
+            if (!string.IsNullOrEmpty(friendname))
+            {
+                friendListQuery = friendListQuery.Where(friendlist => friendlist.IdFriendnameNavigation.Name.Contains(friendname));
+            }
+            var MyFriends = await friendListQuery
                 .Skip((chunkSize - 1) * chunkIndex)
                 .Take(chunkSize)
-                .Select(friendlist => friendlist.IdFriendnameNavigation) // Используйте свойство навигации User для получения данных друга
+                .Select(friendlist => friendlist.IdFriendnameNavigation)
                 .ToListAsync();
-
             return MyFriends;
         }
+
 
 
         [HttpPost]

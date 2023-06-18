@@ -41,12 +41,15 @@ namespace WebAppMacroSociety.Controllers
         public async Task<IEnumerable<User>> GetUsers(string myname, int chunkIndex, int chunkSize)
         {
             var myAL = await _context.Users
-                .Where(user => user.Name != myname)
+                .Where(user => user.Name != myname && !_context.FriendLists
+                    .Any(friend => (friend.Username == myname && friend.Friendname == user.Name) ||
+                                   (friend.Friendname == myname && friend.Username == user.Name)))
                 .Skip((chunkSize - 1) * chunkIndex)
                 .Take(chunkSize)
                 .ToListAsync();
             return myAL;
         }
+
 
         [HttpGet("checkemail")]
         public async Task<int> GetEmailandCheck(string email)
