@@ -6,8 +6,11 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using MacroSociety.Models;
-using System.Text.Json.Serialization;
 using System.Text.Json;
+using System.Text.Json.Serialization;
+using Microsoft.Extensions.Options;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
+using Newtonsoft.Json;
 
 namespace WebApiSociety.Controllers
 {
@@ -39,49 +42,39 @@ namespace WebApiSociety.Controllers
         }
 
         [HttpGet("posts-and-likes")]
-        public async Task<IActionResult> GetPostsAndLikesWithPagination(int userId, int? friendId,string name, int page, int pageSize)
+        public async Task<IEnumerable<PostWithLikes>> GetPostsAndLikesWithPagination(int userId, int? friendId, string name, int page, int pageSize)
         {
-            IQueryable<Post> query;
-
-            if (friendId.HasValue)
+            var posts = await _context.Posts.Where(p => friendId.HasValue ? p.IdUser == friendId : p.IdUser == userId)
+                .Include(p => p.Likes)
+             .OrderByDescending(p => p.Id)
+             .Skip((pageSize - 1) * page) // Corrected calculation of Skip
+                 .Take(pageSize)
+                  .ToListAsync(); // Включаем лайки для постов
+            List<PostWithLikes> PostsWithLikes = new List<PostWithLikes>();
+            foreach (var post in posts)
             {
-                query = _context.Posts.Where(post => post.IdUser == friendId);              
+                var PostWithLikes = new PostWithLikes
+                {
+                    Id = post.Id,
+                    NamePost = post.NamePost,
+                    PhotoUrl = post.PhotoUrl,
+                    NameUser = post.NameUser,
+                    IdUser=post.IdUser,
+                    TotalLikes = post.Likes.Count,
+                    Likes = post.Likes.Select(like => like.NameUserLike).ToList()
+                };
+                PostsWithLikes.Add(PostWithLikes);
             }
-            else
-            {
-                query = _context.Posts.Where(post => post.IdUser == userId);
-            }
 
-            query = query.OrderByDescending(post => post.Id);
-
-            var totalPosts = await query.CountAsync();
-            var posts = await query
-                .Skip((page - 1) * pageSize)
-                .Take(pageSize)
-                .ToListAsync();
-
-            var postIds = posts.Select(post => post.Id).ToList();
-
-            var likes = await _context.Likes
-                .Where(like => postIds.Contains(like.IdFriendPost) && like.NameUserLike == name)
-                .ToListAsync();
-
-            var postsWithLikes = new PostWithLikes
-            {
-                Posts = posts,
-                Likes = likes
-            };
-
-            //var totalPages = (int)Math.Ceiling((double)totalPosts / pageSize);
-
-            var jsonSerializerOptions = new JsonSerializerOptions
+            return PostsWithLikes;
+            //int totalLikes = likes.Count;
+           /* var jsonSerializerOptions = new JsonSerializerOptions
             {
                 ReferenceHandler = ReferenceHandler.Preserve
             };
 
-            var json = JsonSerializer.Serialize(postsWithLikes, jsonSerializerOptions);
-
-            return Ok(json);
+            var json = JsonConvert.SerializeObject(posts);
+            return Ok(json);*/
         }
 
 

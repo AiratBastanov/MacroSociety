@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 
 #nullable disable
@@ -18,9 +19,8 @@ namespace MacroSociety.Models
         public string PhotoUrl { get; set; }
         public string NameUser { get; set; }
         public int IdUser { get; set; }
-
-        public virtual User IdUserNavigation { get; set; }
-        public virtual ICollection<CommentForPost> CommentForPosts { get; set; }
+        public virtual User IdUserNavigation { get; set; }      
+        public virtual ICollection<CommentForPost> CommentForPosts { get; set; }     
         public virtual ICollection<Like> Likes { get; set; }
     }
 }
