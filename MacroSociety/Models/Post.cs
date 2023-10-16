@@ -19,8 +19,11 @@ namespace MacroSociety.Models
         public string PhotoUrl { get; set; }
         public string NameUser { get; set; }
         public int IdUser { get; set; }
-        public virtual User IdUserNavigation { get; set; }      
-        public virtual ICollection<CommentForPost> CommentForPosts { get; set; }     
+        [JsonIgnore]
+        public virtual User IdUserNavigation { get; set; }
+        [JsonIgnore]
+        public virtual ICollection<CommentForPost> CommentForPosts { get; set; }
+        [JsonIgnore]
         public virtual ICollection<Like> Likes { get; set; }
     }
 }

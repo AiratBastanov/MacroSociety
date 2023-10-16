@@ -11,7 +11,8 @@ namespace MacroSociety.Models
         public int Id { get; set; }
         public string NameUserLike { get; set; }
         public string WhosePost { get; set; }
-        public int IdFriendPost { get; set; }      
+        public int IdFriendPost { get; set; }
+        [JsonIgnore]
         public virtual Post IdFriendPostNavigation { get; set; }
     }
 }
