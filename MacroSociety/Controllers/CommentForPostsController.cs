@@ -21,15 +21,38 @@ namespace WebApiSociety.Controllers
         }
      
         [HttpGet]
-        public async Task<IEnumerable<CommentForPost>> GetComment(int id, int chunkIndex, int chunkSize)
-        {          
-            var comment = await _context.CommentForPosts
-             .Where(com => com.IdFriendPost == id)
-             .OrderBy(com => com.Id) // Сортировка по возрастанию по полю Id
-             .Skip((chunkSize - 1) * chunkIndex)
-             .Take(chunkSize)
-             .ToListAsync();
-            return comment;
+        public async Task<IEnumerable<CommentForPost>> GetComment(int userId, int postId, string commentType, int chunkIndex, int chunkSize)//int
+        {
+            IEnumerable<CommentForPost> comments;
+            //int count = 0;
+
+            if (commentType == "all")
+            {
+                comments = await _context.CommentForPosts
+                    .Where(comment => comment.IdFriendPost == postId)
+                    .OrderBy(comment => comment.Id)
+                    .Skip((chunkSize - 1) * chunkIndex)
+                    .Take(chunkSize)
+                    .ToListAsync();
+            }
+            else//commentType == "friends"
+            {             
+                var friends = await _context.FriendLists
+            .Where(f => (f.IdUsername == userId))
+            .Select(f => f.IdFriendname == userId ? f.IdUsernameNavigation : f.IdFriendnameNavigation)
+            .ToListAsync();
+               // count = friends.Count();
+                var friendIds = friends.Select(f => f.Name).ToList();
+                // Выбираем комментарии только от друзей к данному посту
+                comments = await _context.CommentForPosts
+            .Where(c => c.IdFriendPost == postId && friendIds.Contains(c.NameUserComment))
+            .Skip(chunkIndex * chunkSize)
+            .Take(chunkSize)
+            .ToListAsync();
+            }
+
+                return comments;
+                //return count;
         }
 
         [HttpPost]
