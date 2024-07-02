@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 
 #nullable disable
 
@@ -12,6 +13,11 @@ namespace MacroSociety.Models
             FriendListIdFriendnameNavigations = new HashSet<FriendList>();
             FriendListIdUsernameNavigations = new HashSet<FriendList>();
             FriendRequests = new HashSet<FriendRequest>();
+            GroupInvitationInvitedByNavigations = new HashSet<GroupInvitation>();
+            GroupInvitationInvitedUsers = new HashSet<GroupInvitation>();
+            GroupMembers = new HashSet<GroupMember>();
+            GroupPosts = new HashSet<GroupPost>();
+            Groups = new HashSet<Group>();
             Posts = new HashSet<Post>();
             UserSongs = new HashSet<UserSong>();
         }
@@ -30,6 +36,11 @@ namespace MacroSociety.Models
         public virtual ICollection<FriendList> FriendListIdFriendnameNavigations { get; set; }
         public virtual ICollection<FriendList> FriendListIdUsernameNavigations { get; set; }
         public virtual ICollection<FriendRequest> FriendRequests { get; set; }
+        public virtual ICollection<GroupInvitation> GroupInvitationInvitedByNavigations { get; set; }
+        public virtual ICollection<GroupInvitation> GroupInvitationInvitedUsers { get; set; }
+        public virtual ICollection<GroupMember> GroupMembers { get; set; }
+        public virtual ICollection<GroupPost> GroupPosts { get; set; }
+        public virtual ICollection<Group> Groups { get; set; }
         public virtual ICollection<Post> Posts { get; set; }
         public virtual ICollection<UserSong> UserSongs { get; set; }
     }

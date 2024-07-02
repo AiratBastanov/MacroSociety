@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 #nullable disable
 
-namespace WebApplication1.Models
+namespace MacroSociety.Models
 {
     public partial class GroupPost
     {
