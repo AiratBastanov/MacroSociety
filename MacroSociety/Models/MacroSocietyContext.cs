@@ -3,6 +3,7 @@ using System.IO;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.Extensions.Configuration;
+using WebApplication1.Models;
 
 #nullable disable
 
@@ -23,6 +24,10 @@ namespace MacroSociety.Models
         public virtual DbSet<FriendList> FriendLists { get; set; }
         public virtual DbSet<FriendRequest> FriendRequests { get; set; }
         public virtual DbSet<Game> Games { get; set; }
+        public virtual DbSet<Group> Groups { get; set; }
+        public virtual DbSet<GroupInvitation> GroupInvitations { get; set; }
+        public virtual DbSet<GroupMember> GroupMembers { get; set; }
+        public virtual DbSet<GroupPost> GroupPosts { get; set; }
         public virtual DbSet<Like> Likes { get; set; }
         public virtual DbSet<Post> Posts { get; set; }
         public virtual DbSet<Song> Songs { get; set; }
@@ -138,6 +143,82 @@ namespace MacroSociety.Models
                     .WithOne(p => p.Game)
                     .HasForeignKey<Game>(d => d.IdUser)
                     .HasConstraintName("FK_List_Level_User_Users");
+            });
+
+            modelBuilder.Entity<Group>(entity =>
+            {
+                entity.Property(e => e.GroupName)
+                    .IsRequired()
+                    .HasMaxLength(50);
+
+                entity.HasOne(d => d.CreatedByNavigation)
+                    .WithMany(p => p.Groups)
+                    .HasForeignKey(d => d.CreatedBy)
+                    .HasConstraintName("FK_Groups_Users");
+            });
+
+            modelBuilder.Entity<GroupInvitation>(entity =>
+            {
+                entity.Property(e => e.InvitationDate)
+                    .HasColumnType("datetime")
+                    .HasDefaultValueSql("(getdate())");
+
+                entity.Property(e => e.ResponseDate).HasColumnType("datetime");
+
+                entity.HasOne(d => d.Group)
+                    .WithMany(p => p.GroupInvitations)
+                    .HasForeignKey(d => d.GroupId)
+                    .HasConstraintName("FK_GroupInvitations_Groups");
+
+                entity.HasOne(d => d.InvitedByNavigation)
+                    .WithMany(p => p.GroupInvitationInvitedByNavigations)
+                    .HasForeignKey(d => d.InvitedBy)
+                    .OnDelete(DeleteBehavior.ClientSetNull);
+
+                entity.HasOne(d => d.InvitedUser)
+                    .WithMany(p => p.GroupInvitationInvitedUsers)
+                    .HasForeignKey(d => d.InvitedUserId)
+                    .OnDelete(DeleteBehavior.ClientSetNull);
+            });
+
+            modelBuilder.Entity<GroupMember>(entity =>
+            {
+                entity.HasKey(e => new { e.GroupId, e.UserId });
+
+                entity.Property(e => e.JoinDate)
+                    .HasColumnType("datetime")
+                    .HasDefaultValueSql("(getdate())");
+
+                entity.HasOne(d => d.Group)
+                    .WithMany(p => p.GroupMembers)
+                    .HasForeignKey(d => d.GroupId)
+                    .HasConstraintName("FK_GroupMembers_Groups");
+
+                entity.HasOne(d => d.User)
+                    .WithMany(p => p.GroupMembers)
+                    .HasForeignKey(d => d.UserId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_GroupMembers_Users");
+            });
+
+            modelBuilder.Entity<GroupPost>(entity =>
+            {
+                entity.Property(e => e.PostContent).IsRequired();
+
+                entity.Property(e => e.PostDate)
+                    .HasColumnType("datetime")
+                    .HasDefaultValueSql("(getdate())");
+
+                entity.HasOne(d => d.Group)
+                    .WithMany(p => p.GroupPosts)
+                    .HasForeignKey(d => d.GroupId)
+                    .HasConstraintName("FK_GroupPosts_Groups");
+
+                entity.HasOne(d => d.PostedByNavigation)
+                    .WithMany(p => p.GroupPosts)
+                    .HasForeignKey(d => d.PostedBy)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_GroupPosts_Users");
             });
 
             modelBuilder.Entity<Like>(entity =>
