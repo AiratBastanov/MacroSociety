@@ -27,9 +27,10 @@ namespace MacroSociety.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<GroupInvitation>> GetGroupInvitation(int id)
+        public async Task<ActionResult<IEnumerable<GroupInvitation>>> GetGroupInvitation(int id)
         {
-            var invitation = await _context.GroupInvitations.FindAsync(id);
+
+            var invitation = await _context.GroupInvitations.Where(p => p.InvitedUserId == id).ToListAsync();
 
             if (invitation == null)
             {
@@ -42,11 +43,45 @@ namespace MacroSociety.Controllers
         [HttpPost]
         public async Task<ActionResult<GroupInvitation>> PostGroupInvitation(GroupInvitation invitation)
         {
+            // Проверяем, существует ли пользователь, который отправил приглашение
+            var invitedByUser = await _context.Users.FindAsync(invitation.InvitedBy);
+            if (invitedByUser == null)
+            {
+                return BadRequest($"User with ID {invitation.InvitedBy} does not exist.");
+            }
+
+            // Проверяем, существует ли пользователь, который получил приглашение
+            var invitedUser = await _context.Users.FindAsync(invitation.InvitedUserId);
+            if (invitedUser == null)
+            {
+                return BadRequest($"User with ID {invitation.InvitedUserId} does not exist.");
+            }
+
+            // Проверяем, существует ли уже отправленная заявка этому пользователю в данной группе
+            var existingInvitation = await _context.GroupInvitations
+                .FirstOrDefaultAsync(i => i.GroupId == invitation.GroupId
+                                       && i.InvitedUserId == invitation.InvitedUserId);
+            if (existingInvitation != null)
+            {
+                return Conflict("An invitation has already been sent to this user for this group.");
+            }
+
+            // Устанавливаем текущую дату и время для InvitationDate
+            invitation.InvitationDate = DateTime.UtcNow;
+
+            // Устанавливаем значение для IsAccepted в false
+            invitation.IsAccepted = false;
+
+            // Добавляем объект приглашения в контекст
             _context.GroupInvitations.Add(invitation);
+
+            // Сохраняем изменения в базе данных
             await _context.SaveChangesAsync();
 
+            // Возвращаем ответ с созданным приглашением
             return CreatedAtAction("GetGroupInvitation", new { id = invitation.Id }, invitation);
         }
+
 
         [HttpPut("{id}")]
         public async Task<IActionResult> PutGroupInvitation(int id, GroupInvitation invitation)

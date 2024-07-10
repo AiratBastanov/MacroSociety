@@ -28,6 +28,34 @@ namespace WebAppMacroSociety.Controllers
                 return NotFound();
             return Ok(FriendList);
         }
+        [HttpGet("forinvitegroup")]
+        public async Task<ActionResult<IEnumerable<User>>> GetFriendsForInviteGroup(string myname, int groupId, int idUser)
+        {
+            var friendList = await _context.FriendLists
+                .Where(fl => fl.Username == myname)
+                .Select(fl => fl.IdFriendname)
+                .ToListAsync();
+
+            if (!friendList.Any())
+                return NotFound();
+
+            var invitedUsers = await _context.GroupInvitations
+                .Where(gi => gi.GroupId == groupId && gi.InvitedBy == idUser)
+                .Select(gi => new { gi.InvitedUserId, gi.IsAccepted })
+                .ToListAsync();
+
+            var filteredFriends = friendList.Where(friendId =>
+                !invitedUsers.Any(invite => invite.InvitedUserId == friendId) ||
+                invitedUsers.Any(invite => invite.InvitedUserId == friendId && invite.IsAccepted == false))
+                .ToList();
+
+            var usersToInvite = await _context.Users
+                .Where(u => filteredFriends.Contains(u.Id))
+                .ToListAsync();
+
+            return Ok(usersToInvite);
+        }
+
 
         [HttpGet("allfriends")]
         public async Task<IEnumerable<User>> GetFriendAll(string myname, string friendname, int chunkIndex, int chunkSize)
@@ -47,6 +75,18 @@ namespace WebAppMacroSociety.Controllers
                 .ToListAsync();
             return MyFriends;
         }
+
+        [HttpGet("allfriends2")]
+        public async Task<IEnumerable<User>> GetAllFriends(string myname)
+        {
+            var MyFriends = await _context.FriendLists
+                .Where(friendlist => friendlist.Username == myname)
+                .OrderBy(friendlist => friendlist.Id)
+                .Select(friendlist => friendlist.IdFriendnameNavigation)
+                .ToListAsync();
+            return MyFriends;
+        }
+
 
         [HttpPost]
         public async Task<int> CreateNewFriend(FriendList friendlist)

@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using MacroSociety.Models;
+using System.Text.RegularExpressions;
 
 [Route("api/group")]
 [ApiController]
@@ -18,16 +19,16 @@ public class GroupsController : ControllerBase
         _context = context;
     }
 
-    [HttpGet]
+    /*[HttpGet]
     public async Task<ActionResult<IEnumerable<Group>>> GetGroups()
     {
         return await _context.Groups.ToListAsync();
-    }
+    }*/
 
     [HttpGet("{id}")]
-    public async Task<ActionResult<Group>> GetGroup(int id)
+    public async Task<ActionResult<MacroSociety.Models.Group>> GetGroup(int id)
     {
-        var group = await _context.Groups.FindAsync(id);
+        var group = await _context.Groups.Where(p => p.Id == id).FirstOrDefaultAsync();
 
         if (group == null)
         {
@@ -37,8 +38,31 @@ public class GroupsController : ControllerBase
         return group;
     }
 
+    [HttpGet("list/{id}")]
+    public async Task<ActionResult<IEnumerable<MacroSociety.Models.Group>>> GetGroups(int id)
+    {
+        var groupsCreatedByUser = await _context.Groups
+            .Where(g => g.CreatedBy == id)
+            .ToListAsync();
+
+        var groupsUserIsMemberOf = await _context.GroupMembers
+            .Where(gm => gm.UserId == id)
+            .Select(gm => gm.Group)
+            .ToListAsync();
+
+        var allGroups = groupsCreatedByUser.Union(groupsUserIsMemberOf).Distinct().ToList();
+
+        if (!allGroups.Any())
+        {
+            return NotFound();
+        }
+
+        return allGroups;
+    }
+
+
     [HttpPost]
-    public async Task<ActionResult<Group>> PostGroup(Group group)
+    public async Task<ActionResult<MacroSociety.Models.Group>> PostGroup(MacroSociety.Models.Group group)
     {
         _context.Groups.Add(group);
         await _context.SaveChangesAsync();
@@ -47,7 +71,7 @@ public class GroupsController : ControllerBase
     }
 
     [HttpPut("{id}")]
-    public async Task<IActionResult> PutGroup(int id, Group group)
+    public async Task<IActionResult> PutGroup(int id, MacroSociety.Models.Group group)
     {
         if (id != group.Id)
         {

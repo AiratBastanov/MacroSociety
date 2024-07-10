@@ -26,18 +26,19 @@ namespace MacroSociety.Controllers
             return await _context.GroupPosts.ToListAsync();
         }
 
-        [HttpGet("{id}")]
-        public async Task<ActionResult<GroupPost>> GetGroupPost(int id)
+        [HttpGet("{groupId}")]
+        public async Task<ActionResult<IEnumerable<GroupPost>>> GetGroupPosts(int groupId)
         {
-            var post = await _context.GroupPosts.FindAsync(id);
+            var posts = await _context.GroupPosts.Where(p => p.GroupId == groupId).ToListAsync();
 
-            if (post == null)
+            if (posts == null || !posts.Any())
             {
                 return NotFound();
             }
 
-            return post;
+            return posts;
         }
+
 
         [HttpPost]
         public async Task<ActionResult<GroupPost>> PostGroupPost(GroupPost post)
